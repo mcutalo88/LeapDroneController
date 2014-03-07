@@ -1,0 +1,15 @@
+{
+  "name": "NodeDroneLeap",
+  "version": "0.0.1",
+  "description": "Control AR Drone with Leap Motion",
+  "main": "repl.js",
+  "dependencies": {
+    "ar-drone": "~0.3.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "BSD-2-Clause"
+}
