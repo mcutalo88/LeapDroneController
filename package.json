@@ -2,9 +2,14 @@
   "name": "NodeDroneLeap",
   "version": "0.0.1",
   "description": "Control AR Drone with Leap Motion",
-  "main": "repl.js",
+  "main": "LeepDroneController.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mcutalo88/LeapDroneController"
+  },
   "dependencies": {
-    "ar-drone": "~0.3.1"
+    "ar-drone": "~0.3.1",
+    "leapjs": "^0.4.1"
   },
   "devDependencies": {},
   "scripts": {
