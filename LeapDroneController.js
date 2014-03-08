@@ -6,7 +6,7 @@ var client  = arDrone.createClient();
 var controller = new Leap.Controller();
 
 var isTakenOff = false;
-var droneIncreaseTmp = 0;
+var lastHandHeight = 0;
 
 
 controller.on("frame", function(frame) {
@@ -23,19 +23,23 @@ controller.on("frame", function(frame) {
     
     var hand = frame.hands[0];
     var position = hand.palmPosition;
-    var handPosition = position[1] / 1000;        
+    var currentHandHeight = (position[1] / 1000) + .1;        
     
     if(position != 0){
       //forevery 1000 position increase the drone will move up .1
-      if(droneIncreaseTmp < handPosition){
-        console.log("Increasing Height by : " + handPosition);
-        client.up(handPosition); //value 0 -1
+      if(lastHandHeight < currentHandHeight){
+        console.log("Increasing Height by : " + currentHandHeight);
+        client.up(currentHandHeight); //value 0 - 1
+      }else if (lastHandHeight > currentHandHeight){
+        console.log("Decrease Height by : " + currentHandHeight);  
+        client.down(currentHandHeight); //value 0 - 1
       }else{
-        console.log("Decrease Height by : " + handPosition);  
-        client.down(handPosition); //value 0 -1
+        //TODO: Need to figure out how to hold the position when hand is not moving that much..
+        console.log("Holding position....");
+        client.stop();
       }        
     }
-    droneIncreaseTmp = handPosition; //Saved old value
+    lastHandHeight = currentHandHeight; //Saved old value
   }
     
   //On Two fingers the drone will turn click wise
@@ -63,16 +67,6 @@ controller.on("frame", function(frame) {
 
 });
 
-// var frameCount = 0;
-// controller.on("frame", function(frame) {
-//   frameCount++;
-// });
-
-// setInterval(function() {
-//   var time = frameCount/2;
-//   console.log("received " + frameCount + " frames @ " + time + "fps");
-//   frameCount = 0;
-// }, 2000);
 
 controller.on('ready', function() {
     console.log("ready");
