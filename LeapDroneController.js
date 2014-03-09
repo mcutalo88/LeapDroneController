@@ -16,12 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-var Leap  = require('leapjs');
+var Leap = require('leapjs');
 var arDrone = require('ar-drone');
-var client  = arDrone.createClient();
+var droneClient = arDrone.createClient();
 var controller = new Leap.Controller();
 
-var isTakenOff = false;
+var isTakenOff     = false;
 var lastHandHeight = 0;
 
 
@@ -32,40 +32,53 @@ controller.on("frame", function(frame) {
   
     if(isTakenOff == false){ 
       console.log("Taking off.......");
-      client.takeoff();
-      client.stop();
+      droneClient.takeoff();
+      droneClient.stop();
       isTakenOff = true;
     }
     
     var hand = frame.hands[0];
     var position = hand.palmPosition;//[Horiztional Index, Vertical Index, Front/Back ?]
     var currentHandHeight = (position[1] / 1000) + .1;        
-    var currentHorizontalPosition = (position[0] / 1000) + .2;
- 
-
-    console.log(currentHorizontalPosition);
+    var currentHandRoll = hand.roll().toFixed(1);
+   
+    //var currentHorizontalPosition = (position[0] / 1000) + .2; //Shouldnt use..
+   
+    //console.log(hand.roll().toFixed(1));
+    //console.log(currentHorizontalPosition);
 
     if(position != 0){
       //forevery 1000 position increase the drone will move up .1
       if(lastHandHeight < currentHandHeight){
         console.log("Increasing Height by : " + currentHandHeight);
-        client.up(currentHandHeight); //value 0 - 1
+        droneClient.up(currentHandHeight); //value 0 - 1
       }else if (lastHandHeight > currentHandHeight){
         console.log("Decrease Height by : " + currentHandHeight);  
-        client.down(currentHandHeight); //value 0 - 1
-      }else{
-        //TODO: Need to figure out how to hold the position when hand is not moving that much..
-        //console.log("Holding position....");
-        client.stop();
+        droneClient.down(currentHandHeight); //value 0 - 1
       }
 
+      //Try 1 on Roll commands... 
       //currentHorizontalPosition is positive go Right.
-      if(currentHorizontalPosition > 0){
+      // if(currentHorizontalPosition > 0){
+      //   //console.log('Moving Right...');
+      //   droneClient.right(currentHorizontalPosition); 
+      // }else{ //Else go Left.
+      //   //console.log('Moving Left...');
+      //   droneClient.left(currentHorizontalPosition);
+      // }
+
+      //Try 2 on roll commands
+      if(currentHandRoll == 0.0){
+        console.log("Holding Position.");
+        droneClient.stop();
+      }else if(currentHandRoll < 0){
         console.log('Moving Right...');
-        client.right(currentHorizontalPosition); 
-      }else{ //Else go Left.
+        //console.log(Math.abs(currentHandRoll));
+        droneClient.right(Math.abs(currentHandRoll)); 
+      }else{ 
         console.log('Moving Left...');
-        client.left(currentHorizontalPosition);
+        //console.log(currentHandRoll);
+        droneClient.left(currentHandRoll);
       }
 
 
@@ -77,15 +90,15 @@ controller.on("frame", function(frame) {
   //On Two fingers the drone will turn click wise
   // if(frame.fingers.length == 2){
   //   console.log("Turning Clockwise .......");
-  //   client.clockwise(0.1);
+  //   droneClient.clockwise(0.1);
   // }
 
   /* Stop the Drone and land */
   if(frame.hands.length == 0){
     if(isTakenOff == true){
       console.log('Landing Drone.........')
-      client.stop();    
-      client.land();
+      droneClient.stop();    
+      droneClient.land();
       isTakenOff = false;  
     }    
   }
@@ -107,7 +120,7 @@ controller.on('connect', function() {
     console.log("connect");
 });
 controller.on('disconnect', function() {
-    client.land();
+    droneClient.land();
     console.log("disconnect");
 });
 controller.on('focus', function() {
@@ -120,7 +133,7 @@ controller.on('deviceConnected', function() {
     console.log("deviceConnected");
 });
 controller.on('deviceDisconnected', function() {
-    client.land();
+    droneClient.land();
     console.log("deviceDisconnected");
 });
 
