@@ -1,4 +1,20 @@
 'use strict'
+/*
+Copyright (C) 2014  Mike Cutalo
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 var Leap  = require('leapjs');
 var arDrone = require('ar-drone');
@@ -22,9 +38,13 @@ controller.on("frame", function(frame) {
     }
     
     var hand = frame.hands[0];
-    var position = hand.palmPosition;
+    var position = hand.palmPosition;//[Horiztional Index, Vertical Index, Front/Back ?]
     var currentHandHeight = (position[1] / 1000) + .1;        
-    
+    var currentHorizontalPosition = (position[0] / 1000) + .2;
+ 
+
+    console.log(currentHorizontalPosition);
+
     if(position != 0){
       //forevery 1000 position increase the drone will move up .1
       if(lastHandHeight < currentHandHeight){
@@ -35,10 +55,22 @@ controller.on("frame", function(frame) {
         client.down(currentHandHeight); //value 0 - 1
       }else{
         //TODO: Need to figure out how to hold the position when hand is not moving that much..
-        console.log("Holding position....");
+        //console.log("Holding position....");
         client.stop();
-      }        
+      }
+
+      //currentHorizontalPosition is positive go Right.
+      if(currentHorizontalPosition > 0){
+        console.log('Moving Right...');
+        client.right(currentHorizontalPosition); 
+      }else{ //Else go Left.
+        console.log('Moving Left...');
+        client.left(currentHorizontalPosition);
+      }
+
+
     }
+
     lastHandHeight = currentHandHeight; //Saved old value
   }
     
