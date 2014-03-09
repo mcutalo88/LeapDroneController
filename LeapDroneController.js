@@ -39,16 +39,17 @@ controller.on("frame", function(frame) {
     
     var hand = frame.hands[0];
     var position = hand.palmPosition;//[Horiztional Index, Vertical Index, Front/Back ?]
-    var currentHandHeight = (position[1] / 1000) + .1;        
+    var currentHandHeight = ((position[1] / 1000) + .1).toFixed(2);        
     var currentHandRoll = hand.roll().toFixed(1);
+    var currentHandPitch = hand.pitch().toFixed(1);
    
-    //var currentHorizontalPosition = (position[0] / 1000) + .2; //Shouldnt use..
-   
+    //console.log(currentHandHeight);
+    console.log(hand.pitch().toFixed(1));
     //console.log(hand.roll().toFixed(1));
-    //console.log(currentHorizontalPosition);
 
     if(position != 0){
-      //forevery 1000 position increase the drone will move up .1
+     
+      //Controlls the AR.Drone Height
       if(lastHandHeight < currentHandHeight){
         console.log("Increasing Height by : " + currentHandHeight);
         droneClient.up(currentHandHeight); //value 0 - 1
@@ -57,17 +58,7 @@ controller.on("frame", function(frame) {
         droneClient.down(currentHandHeight); //value 0 - 1
       }
 
-      //Try 1 on Roll commands... 
-      //currentHorizontalPosition is positive go Right.
-      // if(currentHorizontalPosition > 0){
-      //   //console.log('Moving Right...');
-      //   droneClient.right(currentHorizontalPosition); 
-      // }else{ //Else go Left.
-      //   //console.log('Moving Left...');
-      //   droneClient.left(currentHorizontalPosition);
-      // }
-
-      //Try 2 on roll commands
+      //Controlls the AR.Drone Roll
       if(currentHandRoll == 0.0){
         console.log("Holding Position.");
         droneClient.stop();
@@ -81,7 +72,16 @@ controller.on("frame", function(frame) {
         droneClient.left(currentHandRoll);
       }
 
-
+      //Controlls the AR.Drone Pitch
+      if(currentHandPitch == 0.0){
+        droneClient.stop();
+      }else if(currentHandPitch < 0){
+        console.log("Moving Drone Forward..");
+        droneClient.front(Math.abs(currentHandPitch));
+      }else{
+        console.log("Moving Drone Backward..");
+        droneClient.back(currentHandPitch);
+      }
     }
 
     lastHandHeight = currentHandHeight; //Saved old value
