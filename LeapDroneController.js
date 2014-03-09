@@ -16,11 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-var Leap = require('leapjs');
-var arDrone = require('ar-drone');
-var droneClient = arDrone.createClient();
-var controller = new Leap.Controller();
-
+var Leap           = require('leapjs');
+var arDrone        = require('ar-drone');
+var droneClient    = arDrone.createClient();
+var controller     = new Leap.Controller();
 var isTakenOff     = false;
 var lastHandHeight = 0;
 
@@ -37,14 +36,14 @@ controller.on("frame", function(frame) {
       isTakenOff = true;
     }
     
-    var hand = frame.hands[0];
-    var position = hand.palmPosition;//[Horiztional Index, Vertical Index, Front/Back ?]
+    var hand              = frame.hands[0];
+    var position          = hand.palmPosition;
     var currentHandHeight = ((position[1] / 1000) + .1).toFixed(2);        
-    var currentHandRoll = hand.roll().toFixed(1);
-    var currentHandPitch = hand.pitch().toFixed(1);
+    var currentHandRoll   = hand.roll().toFixed(1);
+    var currentHandPitch  = hand.pitch().toFixed(1);
    
     //console.log(currentHandHeight);
-    console.log(hand.pitch().toFixed(1));
+    //console.log(hand.pitch().toFixed(1));
     //console.log(hand.roll().toFixed(1));
 
     if(position != 0){
@@ -61,7 +60,7 @@ controller.on("frame", function(frame) {
       //Controlls the AR.Drone Roll
       if(currentHandRoll == 0.0){
         console.log("Holding Position.");
-        droneClient.stop();
+        //droneClient.stop();
       }else if(currentHandRoll < 0){
         console.log('Moving Right...');
         //console.log(Math.abs(currentHandRoll));
@@ -74,7 +73,7 @@ controller.on("frame", function(frame) {
 
       //Controlls the AR.Drone Pitch
       if(currentHandPitch == 0.0){
-        droneClient.stop();
+        //droneClient.stop();
       }else if(currentHandPitch < 0){
         console.log("Moving Drone Forward..");
         droneClient.front(Math.abs(currentHandPitch));
